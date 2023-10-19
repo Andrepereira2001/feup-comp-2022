@@ -1,0 +1,249 @@
+PARSER_PACKAGE=pt.up.fe.comp;
+PARSER_CLASS=JmmGrammarParser;
+TOKENS_ARE_NODES=false; // tokens are no longer nodes in the tree
+SMART_NODE_CREATION=false;
+
+SKIP : " " | "\t" | "\r" | "\n"
+    | < MULTI_LINE_COMMENT : "/*" (~["*"])* "*" (~["*","/"] (~["*"])* "*" | "*")* "/" >
+    | < SINGLE_LINE_COMMENT : "//" (~["\n"])* >
+;
+
+TOKEN :
+	< INTEGER : "int" > |
+	< BOOL : "boolean" > |
+	< STRING : "String[]" > |
+	< CLASS : "class" > |
+	< IMPORT : "import" > |
+	< EXTENDS : "extends" > |
+	< PUBLIC : "public" > |
+	< STATIC : "static" > |
+	< VOID : "void" > |
+	< RETURN : "return" > |
+	< MAIN : "main" > |
+	< IF : "if" > |
+	< WHILE : "while" > |
+	< ELSE : "else" > |
+	< LENGTH : "length" > |
+	< TRUE : "true" > |
+	< FALSE : "false" > |
+	< THIS : "this" > |
+	< NEW : "new" > |
+	< AND : "&&" > |
+	< LESS : "<" > |
+	< PLUS : "+" > |
+	< MINUS : "-" > |
+	< TIMES : "*" > |
+	< DIVIDE : "/" > |
+	< EQUAL : "=" > |
+	< NEG : "!" > |
+	< DOT : "." > |
+	< SEMICOLON : ";" > |
+	< COMMA : "," > |
+	< OPEN_PAREN : "(" > |
+	< CLOSE_PAREN : ")" > |
+	< OPEN_PAREN_RET : "[" > |
+	< CLOSE_PAREN_RET : "]" > |
+	< OPEN_PAREN_CURVE : "{" > |
+	< CLOSE_PAREN_CURVE : "}" > |
+	< INTEGER_LITERAL : (["0" - "9"])+ > |
+	< IDENTIFIER : ["_", "a" - "z", "A" - "Z"](["_", "a" -"z", "A" - "Z", "0" - "9"])* >
+;
+
+Start : ImportDeclaration ClassDeclaration < EOF >;
+
+ImportDeclaration #void:
+	(
+		(< IMPORT > < IDENTIFIER > { jjtThis.put("image", lastConsumedToken.getImage());} (ImportPackage)*
+		< SEMICOLON > ) #ImportDec
+	)*
+;
+
+ImportPackage :
+    < DOT > < IDENTIFIER > { jjtThis.put("image", lastConsumedToken.getImage());}
+;
+
+ClassDeclaration :
+	< CLASS > < IDENTIFIER >  { jjtThis.put("image", lastConsumedToken.getImage());}
+	(
+		ClassInheritance
+	)?
+	< OPEN_PAREN_CURVE >
+	(
+		VarDeclaration
+	)*
+	(
+		MethodDeclaration
+	)*
+	< CLOSE_PAREN_CURVE >
+;
+
+ClassInheritance :
+    < EXTENDS > < IDENTIFIER > { jjtThis.put("image", lastConsumedToken.getImage());}
+;
+
+MethodDeclaration :
+    < PUBLIC >
+    (
+        < STATIC > {jjtThis.put("isStatic", "true");} (< VOID > {jjtThis.put("type", "void");jjtThis.put("isArray", "false");}) #Type < MAIN > { jjtThis.put("image", lastConsumedToken.getImage());} < OPEN_PAREN > MainParameters < CLOSE_PAREN > < OPEN_PAREN_CURVE >
+        (
+            SCAN 2 VarDeclaration
+        )*
+        (
+            Statement
+        )*
+        < CLOSE_PAREN_CURVE > |
+        {jjtThis.put("isStatic", "false");} Type < IDENTIFIER > { jjtThis.put("image", lastConsumedToken.getImage());} < OPEN_PAREN >
+        (
+            (Type < IDENTIFIER > { jjtThis.put("image", lastConsumedToken.getImage());}) #Param(1)
+            (
+                    (< COMMA > Type < IDENTIFIER > { jjtThis.put("image", lastConsumedToken.getImage());}) #Param(1)
+            )*
+        )?
+        < CLOSE_PAREN > < OPEN_PAREN_CURVE >
+        (
+            SCAN 2 VarDeclaration
+        )*
+        (
+            Statement
+        )*
+        ReturnStatement < CLOSE_PAREN_CURVE >)
+;
+
+MainParameters #void:
+    ((< STRING > {jjtThis.put("type", "String"); jjtThis.put("isArray","true");})  #Type
+    < IDENTIFIER > { jjtThis.put("image", lastConsumedToken.getImage()); }) #Param
+;
+
+ReturnStatement :
+    { jjtThis.put("op", "RET");} < RETURN > AndExpression < SEMICOLON >
+;
+
+VarDeclaration :
+        Type < IDENTIFIER > { jjtThis.put("image", lastConsumedToken.getImage());} < SEMICOLON >
+;
+
+Type:
+	(< INTEGER > {jjtThis.put("type", "int");jjtThis.put("isArray","false");}(< OPEN_PAREN_RET > < CLOSE_PAREN_RET > {jjtThis.put("type", "int");jjtThis.put("isArray","true");})? )|
+	(< BOOL > {jjtThis.put("type", "boolean");jjtThis.put("isArray","false");})|
+	(< IDENTIFIER > {jjtThis.put("type", lastConsumedToken.getImage());jjtThis.put("isArray","false");} )
+;
+
+Statement #void:
+	< OPEN_PAREN_CURVE > (Statement)* #Block < CLOSE_PAREN_CURVE > |
+	(< IF > (< OPEN_PAREN > AndExpression < CLOSE_PAREN > {jjtThis.put("op","COND");}) #Condition(1) Statement  #Then(1) < ELSE > Statement #ElseStatement) #IfStatement |
+	(< WHILE > (< OPEN_PAREN > AndExpression < CLOSE_PAREN > {jjtThis.put("op","COND");}) #Condition(1) Statement #Body(1)) #WhileStatement |
+	SCAN 2 Assign |
+	AndExpression < SEMICOLON >
+;
+
+Assign :
+    SCAN 2 IdentifierObject < EQUAL > AndExpression < SEMICOLON > |
+    IdentifierObject ArrayExpression < EQUAL > AndExpression < SEMICOLON >
+;
+
+IdentifierObject:
+    < IDENTIFIER > { jjtThis.put("image", lastConsumedToken.getImage());}
+;
+
+AndExpression #void :
+    LessExpression
+    (
+        (<AND> LessExpression { jjtThis.put("op", "AND"); jjtThis.put("type", "boolean");}) #Binop(2)
+    )*
+;
+
+LessExpression #void :
+    AdditiveExpression
+    (
+        (<LESS> AdditiveExpression { jjtThis.put("op", "LT"); jjtThis.put("type", "boolean");}) #Binop(2)
+    )*
+;
+
+AdditiveExpression #void :
+	MultiplicativeExpression
+	(
+		(< PLUS > MultiplicativeExpression { jjtThis.put("op", "ADD"); jjtThis.put("type", "int");}) #Binop(2) |
+		(< MINUS > MultiplicativeExpression { jjtThis.put("op", "SUB"); jjtThis.put("type", "int");}) #Binop(2)
+	)*
+;
+
+MultiplicativeExpression #void :
+	NegExpression
+	(
+	    (< TIMES > NegExpression { jjtThis.put("op", "MUL"); jjtThis.put("type", "int");}) #Binop(2) |
+        (< DIVIDE > NegExpression { jjtThis.put("op", "DIV"); jjtThis.put("type", "int");}) #Binop(2)
+	)*
+;
+
+NegExpression #void :
+    (< NEG > NegExpression { jjtThis.put("op", "NEG"); jjtThis.put("type", "boolean"); }) #UnaryOp(1) |
+    Expression
+;
+
+Expression #void :
+    Terminal ( DotExpression | ArrayExpression )*
+;
+
+DotExpression #void:
+    <DOT>
+    (
+        (<LENGTH> { jjtThis.put("image", lastConsumedToken.getImage()); jjtThis.put("type", "int");} )#PropAccess(1) |
+        (<IDENTIFIER> { jjtThis.put("image", lastConsumedToken.getImage());} <OPEN_PAREN>
+        ((
+            AndExpression
+            ( <COMMA> AndExpression )*
+        )?) #Args
+        <CLOSE_PAREN> ) #Call(2)
+    )
+;
+
+ArrayExpression #void:
+    (<OPEN_PAREN_RET> AndExpression <CLOSE_PAREN_RET> ) #Access(2)
+;
+
+Terminal #void :
+	(< INTEGER_LITERAL > { jjtThis.put("image", lastConsumedToken.getImage()); jjtThis.put("type", "int");}) #Literal |
+	(< TRUE > { jjtThis.put("image", lastConsumedToken.getImage()); jjtThis.put("type", "boolean");}) #Literal |
+	(< FALSE > { jjtThis.put("image", lastConsumedToken.getImage()); jjtThis.put("type", "boolean");}) #Literal |
+	(< IDENTIFIER > { jjtThis.put("image", lastConsumedToken.getImage()); jjtThis.put("type", "identifier");}) #IdentifierObject |
+	(< THIS > { jjtThis.put("image", lastConsumedToken.getImage()); jjtThis.put("type", "class"); }) #ClassObject |
+	< OPEN_PAREN > AndExpression < CLOSE_PAREN > |
+	NewStatement
+;
+
+NewStatement :
+    < NEW >
+    (
+    (< INTEGER > < OPEN_PAREN_RET > AndExpression < CLOSE_PAREN_RET > { jjtThis.put("type", "intArray"); }) |
+    (< IDENTIFIER > { jjtThis.put("type", lastConsumedToken.getImage()); } < OPEN_PAREN > < CLOSE_PAREN > )
+    )
+;
+
+
+// Injections for the implementation of JmmNode
+// Since this is injected into BaseNode, it affects only non-terminals
+INJECT BaseNode :
+		import pt.up.fe.comp.jmm.ast.JmmNode;
+		import pt.up.fe.comp.jmm.ast.AJmmNode;
+		import pt.up.fe.specs.util.SpecsCollections;
+		extends AJmmNode
+{
+    @Override
+    public List<JmmNode> getChildren() {
+
+        return SpecsCollections.cast(children(), JmmNode.class);
+    }
+
+    @Override
+    public void add(JmmNode child, int index) {
+
+        if (child instanceof Node) {
+
+            addChild(index, (Node) child);
+        } else {
+
+            throw new RuntimeException("Node " + child + " is not a Node.");
+        }
+
+    }
+}

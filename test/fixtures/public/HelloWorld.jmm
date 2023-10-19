@@ -1,0 +1,113 @@
+import ioPlus;
+import asdasd.sdfsad.Board;
+class HelloWorld extends Board{
+    int a;
+    int[] bArray;
+    boolean aBool;
+    String aString;
+    int number;
+
+	public static void main(String[] args) {
+		int a;
+		int[] b;
+		boolean c;
+		boolean d;
+		boolean e;
+        Board board;
+        boolean aBool;
+
+		b = new int[32];
+
+		ioPlus.printHelloWorld();
+		ioPlus.foo();
+
+		if(aBool){
+            a = 1+1;
+        }
+        else{
+            a = 2+2*3;
+        }
+
+        while(true){
+            a = 1;
+            a = 2;
+            a = 3;
+        }
+
+		//a = 1 + 2*45 + this.foo2(a);
+		b[a] = 1/4;
+		b[0+1] = 2 + (3 + 5*6 +4/8);
+        b[3] = 2;
+
+        while(c){
+            a = 2;
+            a = 3;
+            a = 24+ 3 - 62 * 8;
+        }
+        c = false;
+        d = !c && true;
+        e = (d && true);
+
+	}
+
+
+	public int foo(int anInt, int other, int[] anArray, boolean aBool, String aString) {
+	    ioPlus t;
+	    anInt = t.printL(10);
+	    other = anInt;
+	    aBool = aBool;
+
+	    return t.printL(10);
+	}
+
+	public int foo2(int a) {
+	    a = a;
+	    aBool = aBool;
+	    a = number + number;
+	    number = 1+1;
+        return 0;
+    }
+
+    public int foo3(int a) {
+        return this.foo2(this.foo3(1));
+    }
+
+    public int foo4(){
+        int[] val;
+
+        this.foo(this.foo2(this.foo3(this.foo3(4))), 1 , bArray, aBool, aString).foo2(2);
+
+        this.foo2(2).foo3(3);
+
+        this.foo2(this.foo3(3));
+
+        return val.length;
+    }
+
+    public int foo5(){
+        int number;
+        int[] bArray;
+        bArray[1] = bArray[2];
+        number = bArray[1+3] + bArray[2];
+        return bArray[2];
+    }
+
+    public int foo6(){
+        ioPlus var;
+        var = new ioPlus();
+        return var.foo7();
+    }
+}
+
+/* OLLIR CODE
+
+import ioPlus;
+import Board;
+
+HelloWorld extends Board {
+    .method public static main(args.array.String).V {
+        invokestatic(ioPlus, "printHelloWorld").V;
+    }
+
+}
+*/

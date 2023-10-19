@@ -1,0 +1,47 @@
+import ioPlus;
+
+class Const {
+    int j;
+
+	public static void main(String[] args) {
+        int a;
+        int i;
+        int j;
+        int f;
+        int b;
+        int c;
+
+        a = 3;
+        i = 0;
+        j = 3;
+
+        while (i < a) {
+            ioPlus.printResult(i);
+            i = i + 1;
+        }
+
+        a = i;
+        b = 1;
+        c = 3;
+        while(ioPlus.print(a)){
+            ioPlus.print(a);
+            j = 1;
+            a = b + c;
+        }
+    /*
+        if(a < 3){
+            i = 1;
+            f = 6;
+        } else {
+            i = i +1;
+        }
+
+        ioPlus.print(i);
+        ioPlus.print(f);
+        */
+    }
+
+
+
+
+}

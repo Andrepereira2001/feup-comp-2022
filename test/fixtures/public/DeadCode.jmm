@@ -1,0 +1,36 @@
+import A;
+
+class Const {
+    int d;
+
+	public static void main(String[] args) {
+	    int a;
+	    int b;
+        a=1;
+        a=2;
+        b=1;
+
+        if(true){
+            a=4;
+        } else {
+            a=3;
+        }
+
+        b=a+1;
+
+        A.print(b);
+    }
+
+    public int foo(){
+        int l;
+
+        l=10;
+        while(d < l){
+            d=10;
+            A.print(d);
+        }
+
+        return l;
+    }
+
+}

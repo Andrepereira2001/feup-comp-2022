@@ -1,0 +1,28 @@
+import A;
+
+class Const{
+
+	public static void main(String[] args) {
+	    int i;
+	    int j;
+	    boolean k;
+	    int n;
+	    int l;
+
+	    i = 2 + 2;
+	    i = 2 * 2;
+	    i = 2 / 0;
+	    i = 2 - 2;
+	    k = 2 < 3;
+	    k = true && false;
+	    k = !true;
+	    k = !k;
+
+	    if(true && true && 2 < 1){
+	        i = 2*3*4*1/1;
+	    }
+	    else {
+	        i = 1-23-4-1+2+41+2*2*14*1/2/1;
+	    }
+    }
+}

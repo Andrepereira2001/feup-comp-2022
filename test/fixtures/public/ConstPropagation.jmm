@@ -1,0 +1,36 @@
+import A;
+
+class Const{
+
+	public static void main(String[] args) {
+	    int i;
+	    int j;
+	    boolean k;
+	    int n;
+	    int l;
+
+	    i=1;
+	    j=2;
+	    k=false;
+	    n = j;
+
+	    while(i<n){
+	        i=3;
+	        j=2;
+	        l=3;
+	    }
+
+        n=l;
+        k=true;
+
+	    if(j<i){
+	        A.print(j);
+	        l = 3;
+	        k=false;
+	    } else {
+	        j = i+1;
+	    }
+	    n=j;
+	    n=l;
+    }
+}
